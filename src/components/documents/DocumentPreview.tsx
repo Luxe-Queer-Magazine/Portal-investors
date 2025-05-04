@@ -1,142 +1,123 @@
-import { Document } from '@/lib/utils/documents'
-import { DocumentManager } from '@/lib/utils/documents'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { DocumentDownload } from './DocumentDownload'
+import { Card, CardContent } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { FileText, Download, Eye, X } from 'lucide-react'
 
-interface DocumentPreviewProps {
-  document: Document
-  onStatusChange: (status: Document['status']) => void
+interface Document {
+  id: string
+  name: string
+  type: string
+  status: string
+  date: string
+  data: Record<string, string>
+  url?: string
 }
 
-export function DocumentPreview({ document, onStatusChange }: DocumentPreviewProps) {
-  const [loading, setLoading] = useState(false)
-  const documentManager = new DocumentManager()
+interface DocumentPreviewProps {
+  document: Document | null
+  onClose: () => void
+}
 
-  const handleStatusChange = async (newStatus: Document['status']) => {
-    setLoading(true)
+export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  
+  if (!document) {
+    return null
+  }
+  
+  const handleDownload = async () => {
+    if (!document.url) return
+    
+    setIsLoading(true)
     try {
-      await documentManager.updateDocumentStatus(document.id, newStatus)
-      onStatusChange(newStatus)
+      // In a real app, you would handle the download here
+      // For now, we'll just simulate a delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Create a link and click it to download
+      const link = document.createElement('a')
+      link.href = document.url
+      link.download = document.name
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     } catch (error) {
-      console.error('Error updating document status:', error)
-      alert('Failed to update document status')
+      console.error('Error downloading document:', error)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
-
-  const getStatusOptions = () => {
-    switch (document.status) {
-      case 'pending':
-        return [
-          { value: 'completed', label: 'Mark as Completed' },
-          { value: 'rejected', label: 'Reject Document' }
-        ]
-      case 'completed':
-        return [
-          { value: 'reviewed', label: 'Mark as Reviewed' },
-          { value: 'rejected', label: 'Reject Document' }
-        ]
-      case 'reviewed':
-        return [
-          { value: 'completed', label: 'Mark as Completed' },
-          { value: 'rejected', label: 'Reject Document' }
-        ]
-      case 'rejected':
-        return [
-          { value: 'pending', label: 'Reopen Document' }
-        ]
-      default:
-        return []
-    }
-  }
-
+  
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Document Details</h3>
-        <Button
-          variant="outline"
-          onClick={() => window.open(document.files[0]?.url || '', '_blank')}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-auto rounded-lg border bg-background p-6 shadow-lg">
+        <button
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+          onClick={onClose}
         >
-          View Document
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Document Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h4 className="font-medium">Current Status:</h4>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    document.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    document.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                    document.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
-                  </span>
-                </div>
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+        
+        <div className="mb-6 flex items-center space-x-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">{document.name}</h2>
+            <p className="text-sm text-muted-foreground">
+              {document.type} • {new Date(document.date).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+        
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              document.status === 'Signed' ? 'bg-green-100 text-green-800' :
+              document.status === 'Pending Signature' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-blue-100 text-blue-800'
+            }`}>
+              {document.status}
+            </span>
+            
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={handleDownload} disabled={isLoading || !document.url}>
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </Button>
+              <Button variant="outline" size="sm" disabled={!document.url}>
+                <Eye className="h-4 w-4 mr-1" />
+                View Full Document
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-medium mb-4">Document Details</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {Object.entries(document.data).map(([key, value]) => (
+                  <div key={key} className="space-y-1">
+                    <Label>{key.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</Label>
+                    <p className="text-sm text-muted-foreground">{value || 'Not provided'}</p>
+                  </div>
+                ))}
               </div>
-
-              <div className="space-y-2">
-                <h4 className="font-medium">Actions:</h4>
-                <div className="space-y-2">
-                  {getStatusOptions().map((option) => (
-                    <Button
-                      key={option.value}
-                      variant="outline"
-                      onClick={() => handleStatusChange(option.value as Document['status'])}
-                      disabled={loading}
-                    >
-                      {loading ? 'Processing...' : option.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+            </CardContent>
+          </Card>
+          
+          {document.status === 'Pending Signature' && (
+            <div className="flex justify-end">
+              <Button className="bg-luxury-primary hover:bg-luxury-primary/90">
+                Sign Document
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Document Data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Object.entries(document.data).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <Label>{key.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</Label>
-                  <p className="text-sm text-muted-foreground">{value || 'Not provided'}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Supporting Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {document.files.map((file) => (
-                <DocumentDownload
-                  key={file.id}
-                  file={file}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </div>
     </div>
   )
