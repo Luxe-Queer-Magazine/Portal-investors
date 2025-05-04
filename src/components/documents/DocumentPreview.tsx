@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { FileText, Download, Eye, X } from 'lucide-react'
 
-interface Document {
+interface DocumentType {
   id: string
   name: string
   type: string
@@ -15,7 +15,7 @@ interface Document {
 }
 
 interface DocumentPreviewProps {
-  document: Document | null
+  document: DocumentType | null
   onClose: () => void
 }
 
@@ -36,12 +36,12 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Create a link and click it to download
-      const link = document.createElement('a')
+      const link = window.document.createElement('a')
       link.href = document.url
       link.download = document.name
-      document.body.appendChild(link)
+      window.document.body.appendChild(link)
       link.click()
-      document.body.removeChild(link)
+      window.document.body.removeChild(link)
     } catch (error) {
       console.error('Error downloading document:', error)
     } finally {
