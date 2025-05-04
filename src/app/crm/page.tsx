@@ -1,103 +1,176 @@
 'use client'
 
-import { useState } from 'react'
-import { Contact } from '@/lib/supabase/client'
-import ContactList from '@/components/crm/ContactList'
-import ContactDetail from '@/components/crm/ContactDetail'
-import ContactForm from '@/components/crm/ContactForm'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { ContactList } from '@/components/crm/ContactList'
+import { ContactDetail } from '@/components/crm/ContactDetail'
+import { ContactForm } from '@/components/crm/ContactForm'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PlusCircle, RefreshCw, Download } from 'lucide-react'
+
+// Define the Contact type
+interface Contact {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  status: 'active' | 'inactive'
+  created_at: string
+  updated_at?: string
+}
 
 export default function CRMPage() {
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
-  const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [selectedContact, setSelectedContact] = useState<Contact | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
-  const handleContactSelect = (contact: Contact) => {
-    setSelectedContact(contact)
-    setIsDetailOpen(true)
-  }
+  useEffect(() => {
+    fetchContacts()
+  }, [])
 
-  const handleCreateContact = () => {
-    setSelectedContact(null)
-    setIsFormOpen(true)
-  }
-
-  const handleEditContact = () => {
-    setIsDetailOpen(false)
-    setIsEditing(true)
-    setIsFormOpen(true)
-  }
-
-  const handleSubmitContact = async (data: Partial<Contact>) => {
+  const fetchContacts = async () => {
+    setIsLoading(true)
     try {
-      const response = await fetch(
-        selectedContact ? `/api/contacts/${selectedContact.id}` : '/api/contacts',
-        {
-          method: selectedContact ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        }
-      )
-      if (!response.ok) throw new Error('Failed to save contact')
+      const response = await fetch('/api/contacts')
+      const data = await response.json()
+      setContacts(data.data || [])
+    } catch (error) {
+      console.error('Error fetching contacts:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSelectContact = (contact: Contact) => {
+    setSelectedContact(contact)
+  }
+
+  const handleAddContact = () => {
+    setIsEditing(false)
+    setSelectedContact(undefined)
+    setIsFormOpen(true)
+  }
+
+  const handleEditContact = (contact: Contact) => {
+    setIsEditing(true)
+    setSelectedContact(contact)
+    setIsFormOpen(true)
+  }
+
+  const handleDeleteContact = async (id: string) => {
+    try {
+      await fetch(`/api/contacts/${id}`, {
+        method: 'DELETE',
+      })
       
-      // Reset state and refresh the contact list
+      // Refresh contacts list
+      fetchContacts()
+      
+      // Clear selection if the deleted contact was selected
+      if (selectedContact?.id === id) {
+        setSelectedContact(undefined)
+      }
+    } catch (error) {
+      console.error('Error deleting contact:', error)
+    }
+  }
+
+  const handleSaveContact = async (contactData: Partial<Contact>) => {
+    try {
+      if (isEditing && selectedContact) {
+        // Update existing contact
+        await fetch(`/api/contacts/${selectedContact.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(contactData),
+        })
+      } else {
+        // Create new contact
+        await fetch('/api/contacts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(contactData),
+        })
+      }
+      
+      // Refresh contacts list
+      fetchContacts()
       setIsFormOpen(false)
-      setIsEditing(false)
-      setSelectedContact(null)
-      // The ContactList component will automatically refresh its data
     } catch (error) {
       console.error('Error saving contact:', error)
     }
   }
 
   return (
-    <div className="min-h-screen bg-matte-black">
-      {/* Header */}
-      <div className="bg-midnight shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-didot text-gold">Contact Management</h1>
-              <p className="mt-1 text-sm font-garamond text-gray-400">
-                Manage your network of investors and prospects
-              </p>
-            </div>
-            <button
-              onClick={handleCreateContact}
-              className="inline-flex items-center px-4 py-2 bg-gold/20 hover:bg-gold/30 text-gold font-futura rounded-md transition-colors"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" />
-              New Contact
-            </button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">CRM</h2>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={fetchContacts}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button onClick={handleAddContact}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Contact
+          </Button>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ContactList onContactSelect={handleContactSelect} />
-      </div>
-
-      {/* Modals */}
-      {selectedContact && isDetailOpen && (
-        <ContactDetail
-          contact={selectedContact}
-          isOpen={isDetailOpen}
-          onClose={() => setIsDetailOpen(false)}
-          onEdit={handleEditContact}
-        />
-      )}
 
       <ContactForm
         contact={isEditing ? selectedContact : undefined}
         isOpen={isFormOpen}
         onClose={() => {
           setIsFormOpen(false)
-          setIsEditing(false)
         }}
-        onSubmit={handleSubmitContact}
+        onSave={handleSaveContact}
       />
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Contacts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ContactList
+              contacts={contacts}
+              isLoading={isLoading}
+              selectedContactId={selectedContact?.id}
+              onSelectContact={handleSelectContact}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-1 lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Contact Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedContact ? (
+              <ContactDetail
+                contact={selectedContact}
+                onEdit={() => handleEditContact(selectedContact)}
+                onDelete={() => handleDeleteContact(selectedContact.id)}
+              />
+            ) : (
+              <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+                Select a contact to view details
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
