@@ -1,0 +1,215 @@
+:root {
+  /* Luxury color palette */
+  --luxury-primary: #7D2027; /* Deep Wine Red */
+  --luxury-secondary: #1A2C42; /* Midnight Blue */
+  --luxury-accent: #3E8476; /* Verdigris */
+  --luxury-gold: #D4AF37; /* Burnished Gold */
+  --luxury-lavender: #C8A4D4; /* Soft Lavender */
+  --luxury-black: #121212; /* Matte Black */
+  
+  /* Typography */
+  --font-family-headings: 'Didot', serif;
+  --font-family-body: 'Garamond', serif;
+  --font-family-accent: 'Futura', sans-serif;
+  
+  /* Layout */
+  --spacing-unit: 1rem;
+  --border-radius: 8px;
+  --transition-duration: 0.3s;
+}
+
+/* Luxury typography */
+.luxury-heading {
+  font-family: var(--font-family-headings);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--luxury-primary);
+}
+
+.luxury-text {
+  font-family: var(--font-family-body);
+  line-height: 1.6;
+  color: var(--luxury-black);
+}
+
+.luxury-accent {
+  font-family: var(--font-family-accent);
+  color: var(--luxury-gold);
+}
+
+/* Luxury buttons */
+.luxury-button {
+  background: linear-gradient(135deg, var(--luxury-primary), var(--luxury-secondary));
+  color: white;
+  border-radius: var(--border-radius);
+  padding: 1rem 2rem;
+  font-family: var(--font-family-accent);
+  font-weight: 600;
+  transition: transform var(--transition-duration), box-shadow var(--transition-duration);
+}
+
+.luxury-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Luxury cards */
+.luxury-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform var(--transition-duration);
+}
+
+.luxury-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Luxury animations */
+@keyframes luxury-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.luxury-animate {
+  animation: luxury-fade-in 0.6s ease-out forwards;
+}
+
+/* Luxury borders */
+.luxury-border {
+  border: 2px solid var(--luxury-gold);
+  border-radius: var(--border-radius);
+}
+
+/* Luxury shadows */
+.luxury-shadow {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Luxury hover effects */
+.luxury-hover {
+  transition: all var(--transition-duration) ease-in-out;
+}
+
+.luxury-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Luxury loading states */
+.luxury-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.luxury-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: luxury-loading 1.5s infinite;
+}
+
+@keyframes luxury-loading {
+  100% {
+    left: 100%;
+  }
+}
+
+/* Luxury form elements */
+.luxury-input {
+  border: 2px solid var(--luxury-gold);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  font-family: var(--font-family-body);
+  transition: all var(--transition-duration);
+}
+
+.luxury-input:focus {
+  outline: none;
+  border-color: var(--luxury-primary);
+  box-shadow: 0 0 0 3px rgba(125, 32, 39, 0.2);
+}
+
+/* Luxury tables */
+.luxury-table {
+  border-collapse: separate;
+  border-spacing: 0 1rem;
+}
+
+.luxury-table th {
+  font-family: var(--font-family-headings);
+  color: var(--luxury-primary);
+  padding: 1rem;
+  text-align: left;
+}
+
+.luxury-table td {
+  font-family: var(--font-family-body);
+  padding: 1rem;
+  border-bottom: 2px solid var(--luxury-gold);
+}
+
+/* Luxury notifications */
+.luxury-notification {
+  background: white;
+  border-left: 4px solid var(--luxury-primary);
+  padding: 1rem;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Luxury icons */
+.luxury-icon {
+  color: var(--luxury-gold);
+  transition: transform var(--transition-duration);
+}
+
+.luxury-icon:hover {
+  transform: scale(1.2);
+}
+
+/* Luxury badges */
+.luxury-badge {
+  background: var(--luxury-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-family: var(--font-family-accent);
+  font-weight: 600;
+}
+
+/* Luxury progress indicators */
+.luxury-progress {
+  background: var(--luxury-gold);
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.luxury-progress-bar {
+  background: var(--luxury-primary);
+  height: 100%;
+  transition: width var(--transition-duration);
+}
+
+/* Luxury separators */
+.luxury-separator {
+  border-top: 2px solid var(--luxury-gold);
+  margin: 2rem 0;
+}
