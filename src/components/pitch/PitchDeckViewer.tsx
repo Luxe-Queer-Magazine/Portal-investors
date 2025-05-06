@@ -3,7 +3,25 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-import type { PitchDeck, PitchSlide } from '@/lib/supabase/client'
+// Define types locally to avoid dependency issues
+interface PitchSlide {
+  id: string
+  type: string
+  content: any
+  order: number
+}
+
+interface PitchDeck {
+  id: string
+  title: string
+  description?: string
+  version: string
+  status?: string
+  slides: PitchSlide[]
+  created_by?: string
+  created_at: string
+  updated_at: string
+}
 
 interface PitchDeckViewerProps {
   deck: PitchDeck
@@ -29,14 +47,14 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       case 'intro':
         return (
           <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <motion.h1 
+            <motion.h1
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               className="font-serif text-6xl text-gold text-center"
             >
               {deck.title}
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -50,7 +68,7 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       case 'metrics':
         return (
           <div className="flex flex-col items-center justify-center h-full space-y-12">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="font-serif text-4xl text-gold mb-8"
@@ -77,7 +95,7 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       case 'team':
         return (
           <div className="flex flex-col items-center justify-center h-full">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="font-serif text-4xl text-gold mb-12"
@@ -105,7 +123,7 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       case 'financials':
         return (
           <div className="flex flex-col items-center justify-center h-full">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="font-serif text-4xl text-gold mb-12"
@@ -136,7 +154,7 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       case 'investment':
         return (
           <div className="flex flex-col items-center justify-center h-full">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="font-serif text-4xl text-gold mb-12"
@@ -213,9 +231,12 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
       {/* Navigation Controls */}
       <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-4">
         <button
+          type="button"
           onClick={prevSlide}
           disabled={currentSlide === 0}
           className="p-2 rounded-full bg-wine/20 hover:bg-wine/40 disabled:opacity-50 transition-colors"
+          title="Previous slide"
+          aria-label="Previous slide"
         >
           <ChevronLeftIcon className="w-6 h-6 text-gold" />
         </button>
@@ -223,9 +244,12 @@ export default function PitchDeckViewer({ deck }: PitchDeckViewerProps) {
           {currentSlide + 1} / {deck.slides.length}
         </div>
         <button
+          type="button"
           onClick={nextSlide}
           disabled={currentSlide === deck.slides.length - 1}
           className="p-2 rounded-full bg-wine/20 hover:bg-wine/40 disabled:opacity-50 transition-colors"
+          title="Next slide"
+          aria-label="Next slide"
         >
           <ChevronRightIcon className="w-6 h-6 text-gold" />
         </button>

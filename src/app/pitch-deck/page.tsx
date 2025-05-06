@@ -4,7 +4,10 @@ import PitchDeckViewer from '@/components/pitch/PitchDeckViewer'
 const luxeQueerDeck = {
   id: '1',
   title: 'Luxe Queer Magazine',
+  description: 'Luxury publishing for the discerning queer audience',
   version: '2025.1',
+  status: 'published',
+  created_by: 'admin',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   slides: [
@@ -33,17 +36,17 @@ const luxeQueerDeck = {
       type: 'team',
       content: {
         leadership: [
-          { 
+          {
             name: 'Octavia Opulence³',
             role: 'AI Editorial Director',
             image: '/avatars/octavia.png'
           },
-          { 
+          {
             name: 'Creative Director',
             role: 'Brand & Visual Identity',
             image: '/avatars/creative.png'
           },
-          { 
+          {
             name: 'Tech Director',
             role: 'AI & Platform Innovation',
             image: '/avatars/tech.png'
