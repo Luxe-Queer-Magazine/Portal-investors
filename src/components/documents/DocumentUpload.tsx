@@ -40,8 +40,10 @@ export function DocumentUpload({ documentType, investorId, onUpload }: DocumentU
     }
   }
 
-  const handleFileChange = (newFiles: File[]) => {
-    setFiles(newFiles)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files))
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
