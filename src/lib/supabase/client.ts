@@ -1,87 +1,106 @@
 import { createClient } from '@supabase/supabase-js'
+import { env } from '@/lib/env'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+export const supabase = createClient(
+  env.SUPABASE_URL,
+  env.SUPABASE_ANON_KEY
+)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-})
-
-// Database types
-export type Profile = {
+export type User = {
   id: string
   email: string
-  full_name: string
-  avatar_url?: string
-  role: 'investor' | 'admin' | 'member'
-  subscription_tier?: string
-  subscription_status: 'active' | 'inactive' | 'pending' | 'cancelled'
+  first_name: string
+  last_name: string
+  role: 'admin' | 'investor' | 'user'
   created_at: string
   updated_at: string
 }
 
-export type Subscription = {
+export type Investor = {
   id: string
   user_id: string
-  tier_id: string
-  status: 'active' | 'cancelled' | 'pending'
-  current_period_start: string
-  current_period_end: string
-  cancel_at_period_end: boolean
+  company_name?: string
+  investment_amount: number
+  investment_date: string
+  status: 'active' | 'pending' | 'inactive'
+  accreditation_status: 'verified' | 'pending' | 'not_verified'
+  documents: string[]
+  created_at: string
+  updated_at: string
+}
+
+export type Document = {
+  id: string
+  investor_id: string
+  name: string
+  type: string
+  status: 'signed' | 'pending_signature' | 'available'
+  url: string
+  created_at: string
+  updated_at: string
+}
+
+export type Investment = {
+  id: string
+  investor_id: string
+  amount: number
+  type: string
+  date: string
+  status: string
+  created_at: string
+  updated_at: string
+}
+
+export type Distribution = {
+  id: string
+  investor_id: string
+  amount: number
+  date: string
+  status: 'pending' | 'completed'
+  created_at: string
+  updated_at: string
+}
+
+export type Activity = {
+  id: string
+  investor_id: string
+  type: 'distribution' | 'document' | 'valuation' | 'notice'
+  description: string
+  date: string
+  amount?: number
   created_at: string
   updated_at: string
 }
 
 export type Contact = {
   id: string
-  full_name: string
+  name: string
   email: string
   phone?: string
   company?: string
-  position?: string
-  investment_range?: string
-  interest_level: 'high' | 'medium' | 'low'
-  status: 'lead' | 'prospect' | 'investor' | 'declined'
-  notes?: string
-  last_contacted?: string
+  status: 'active' | 'inactive'
   created_at: string
   updated_at: string
-  assigned_to?: string
 }
 
-export type Document = {
+export type CRMActivity = {
   id: string
-  title: string
-  type: 'pitch_deck' | 'financial' | 'legal' | 'marketing'
-  version: string
-  status: 'draft' | 'published' | 'archived'
-  access_level: 'public' | 'investor' | 'admin'
-  file_url: string
+  contact_id: string
+  activity_type: string
+  description: string
+  status: string
   created_by: string
   created_at: string
   updated_at: string
 }
 
-export type DocumentAccess = {
-  id: string
-  document_id: string
-  user_id: string
-  access_type: 'view' | 'edit'
-  last_accessed?: string
-  created_at: string
-}
-
-export type MarketingCampaign = {
+export type Campaign = {
   id: string
   name: string
-  type: 'email' | 'event' | 'direct'
-  status: 'draft' | 'scheduled' | 'active' | 'completed'
-  target_audience: string[]
-  content: any
-  scheduled_at?: string
+  subject: string
+  content: string
+  status: 'draft' | 'scheduled' | 'sent'
+  scheduled_for?: string
   sent_at?: string
   created_at: string
   updated_at: string
@@ -97,55 +116,21 @@ export type CampaignAnalytics = {
   updated_at: string
 }
 
-// Helper functions
-export const getCurrentUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+export type PitchSlide = {
+  id: string
+  type: 'intro' | 'metrics' | 'team' | 'financials' | 'investment'
+  content: any
+  order: number
 }
 
-export const getProfile = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  
-  if (error) throw error
-  return data as Profile
-}
-
-export const getSubscription = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
-  
-  if (error) throw error
-  return data as Subscription
-}
-
-export const getContacts = async (filters?: Partial<Contact>) => {
-  let query = supabase.from('contacts').select('*')
-  
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) query = query.eq(key, value)
-    })
-  }
-  
-  const { data, error } = await query
-  if (error) throw error
-  return data as Contact[]
-}
-
-export const getDocuments = async (accessLevel: Document['access_level'], userId: string) => {
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .or(`access_level.eq.${accessLevel},access_level.eq.public`)
-    .order('created_at', { ascending: false })
-  
-  if (error) throw error
-  return data as Document[]
+export type PitchDeck = {
+  id: string
+  title: string
+  description?: string
+  version: string
+  status: 'draft' | 'published' | 'archived'
+  slides: PitchSlide[]
+  created_by: string
+  created_at: string
+  updated_at: string
 }
