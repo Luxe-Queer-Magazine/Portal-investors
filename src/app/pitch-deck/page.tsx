@@ -1,3 +1,5 @@
+"use client";
+
 'use client'
 
 import { useState } from 'react'
@@ -7,7 +9,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 export default function PitchDeckPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  const slides = [
+  // Define slide type
+  type Slide = {
+    id: string;
+    type: string;
+    content: Record<string, any>;
+  };
+
+  const slides: Slide[] = [
     {
       id: '1',
       type: 'intro',
@@ -84,7 +93,7 @@ export default function PitchDeckPage() {
     }
   }
 
-  const renderSlideContent = (slide) => {
+  const renderSlideContent = (slide: Slide) => {
     switch (slide.type) {
       case 'intro':
         return (
@@ -116,7 +125,7 @@ export default function PitchDeckPage() {
           <div className="space-y-8">
             <h2 className="text-3xl font-bold text-gold text-center mb-8">Leadership Team</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {slide.content.leadership.map((member, index) => (
+              {slide.content.leadership.map((member: { name: string; role: string }, index: number) => (
                 <div key={index} className="bg-wine/20 p-6 rounded-lg backdrop-blur-sm text-center">
                   <div className="w-24 h-24 mx-auto bg-gold/20 rounded-full mb-4"></div>
                   <h3 className="text-xl font-bold text-gold">{member.name}</h3>
@@ -167,7 +176,7 @@ export default function PitchDeckPage() {
             <div className="bg-wine/20 p-6 rounded-lg backdrop-blur-sm">
               <h3 className="text-xl font-medium text-gold mb-4">Use of Funds</h3>
               <ul className="space-y-2">
-                {slide.content.useOfFunds.map((item, index) => (
+                {slide.content.useOfFunds.map((item: string, index: number) => (
                   <li key={index} className="text-white">{item}</li>
                 ))}
               </ul>
